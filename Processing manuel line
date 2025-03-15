@@ -1,104 +1,135 @@
 PFont police;
-
-
+int tempsDepart;
+float opacite = 255;
 
 void setup() {
-  fullScreen(); 
-  background(100,10,10); 
+  fullScreen();
+  background(0);
+  tempsDepart = millis();
 }
 
 
 
 
 void draw() {
-  guitare();
+  if (millis() - tempsDepart < 3000) {
+    lancement_jeu();
+    Eclair(width / 2, height / 4);
+  } else {
+    transition();
+  }
 }
 
 
 
 
 //===============================================================================================
-void lancement_jeu(){
-  police = createFont("Impact", 100);
-  textFont(police);
-    fill(255, 255, 255);
-    textSize(100);
-    textAlign(CENTER,TOP); 
-  text("Bienvenue sur le jeu GUITAR HERO!", width / 3, height / 2);
+
+void transition() {
+  guitare(); 
+  fill(0, opacite); 
+  rect(0, 0, width, height);
+  
+  
+  opacite -= 10; 
+  if (opacite < 0) {
+    opacite = 0; 
+  }
+}
+
+void lancement_jeu() {
+   background(0);
+   police = createFont("Impact", 100);
+   textFont(police);
+   fill(255, 255, 255);
+   textSize(100);
+   textAlign(CENTER,CENTER);
+   text("Bienvenue sur le jeu GUITAR HERO!", width / 2, height / 2);
 }
 
 void Menu() {
- 
 }
-void Eclair() {
- 
+
+void Eclair(float xDepart, float yDepart) {
+
+  stroke(255, 255, 0); // Couleur jaune
+  strokeWeight(4); // Épaisseur des éclairs
+
+  float xActuel = xDepart;
+  float yActuel = yDepart;
+
+  for (int i = 0; i < 8; i++) { // Nombre de segments
+    float xSuivant = xActuel + random(-40, 40); // Déviation aléatoire
+    float ySuivant = yActuel + random(20, 50);  // Descente progressive
+
+    line(xActuel, yActuel, xSuivant, ySuivant);
+    xActuel = xSuivant;
+    yActuel = ySuivant;
+  }
+
 }
 
 void Feu() {
- 
 }
 
 
-void guitare(){
-  
+void guitare() {
+  background(100, 10, 10);
   fond();
   titre();
   emplacement_note();
   rectangle_bord_de_guitare();
   Amplificateur1();
   Amplificateur2();
-
 }
 void Amplificateur1() {
-  fill(140,140,140);
-  stroke(128,128,128);
-  
+  fill(140, 140, 140);
+  stroke(128, 128, 128);
+
   rect(width/2 - 5*width/12, height/20, width/6, 2*height/20);
- 
- 
 }
 
 void Amplificateur2() {
-  
+
   rect(width/2 + 5*width/12, height/20, width/6, 2*height/20);
   stroke(0);
 }
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-  void fond(){
-      fill(150,10,10);
-    quad(0,2*height/7,width,2*height/7,width,0,0,0);
-  }
+void fond() {
+  fill(150, 10, 10);
+  quad(0, 2*height/7, width, 2*height/7, width, 0, 0, 0);
+}
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-  void emplacement_note(){
-    fill(255);
-  line(6*width/20,2*height/7,14*width/20,2*height/7);
-    stroke(0);
-  for(int i=0; i<9 ; i++){
-  strokeWeight(4);
-  line((i+6)*width/20,2*height/7,i*width/8,height);
-    stroke(50,20,20);
+void emplacement_note() {
+  fill(255);
+  line(6*width/20, 2*height/7, 14*width/20, 2*height/7);
+  stroke(0);
+  for (int i=0; i<9; i++) {
+    strokeWeight(4);
+    line((i+6)*width/20, 2*height/7, i*width/8, height);
+    stroke(50, 20, 20);
   }
-  }
+}
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-  
+
 void titre() {
   police = createFont("Impact", 100);
   textFont(police);
-    fill(255, 255, 255);
-    textSize(100);
-    textAlign(CENTER,TOP); 
-    text("À vous de JOUER!", width / 2, height / 9); 
-  }
+  fill(255, 255, 255);
+  textSize(100);
+  textAlign(CENTER, TOP);
+  text("À vous de JOUER!", width / 2, height / 9);
+}
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-  void rectangle_bord_de_guitare(){
-    //fill(100,10,100);
-    fill(30,0,20);
-    quad(6*width/20,2*height/7,6*width/20,2*height/7-20,0,height-200,0,height);
-      
-    quad(14*width/20,2*height/7,14*width/20,2*height/7-20,width,height-200,width,height);
-    fill(0,0,20);
-    quad(width,2*height/7,14*width/20,2*height/7-20,width,height-200,width,height);
-    quad(0,2*height/7,6*width/20,2*height/7-20,0,height-200,0,height);
-  }
+void rectangle_bord_de_guitare() {
+  //fill(100,10,100);
+  fill(30, 0, 20);
+  quad(6*width/20, 2*height/7, 6*width/20, 2*height/7-20, 0, height-200, 0, height);
+
+  quad(14*width/20, 2*height/7, 14*width/20, 2*height/7-20, width, height-200, width, height);
+  fill(0, 0, 20);
+  quad(width, 2*height/7, 14*width/20, 2*height/7-20, width, height-200, width, height);
+  quad(0, 2*height/7, 6*width/20, 2*height/7-20, 0, height-200, 0, height);
+}
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
