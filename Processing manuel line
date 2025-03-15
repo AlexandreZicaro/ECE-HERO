@@ -19,12 +19,22 @@ void draw() {
 
 //===============================================================================================
 void lancement_jeu(){
-  fill(255);
-  textSize(32);
-  text("              Bienvenue sur le jeu GUITAR HERO!", width / 3, height / 2);
+  police = createFont("Impact", 100);
+  textFont(police);
+    fill(255, 255, 255);
+    textSize(100);
+    textAlign(CENTER,TOP); 
+  text("Bienvenue sur le jeu GUITAR HERO!", width / 3, height / 2);
 }
 
-void Menu_Eclair() {
+void Menu() {
+ 
+}
+void Eclair() {
+ 
+}
+
+void Feu() {
  
 }
 
@@ -35,9 +45,24 @@ void guitare(){
   titre();
   emplacement_note();
   rectangle_bord_de_guitare();
+  Amplificateur1();
+  Amplificateur2();
 
 }
+void Amplificateur1() {
+  fill(140,140,140);
+  stroke(128,128,128);
+  
+  rect(width/2 - 5*width/12, height/20, width/6, 2*height/20);
+ 
+ 
+}
 
+void Amplificateur2() {
+  
+  rect(width/2 + 5*width/12, height/20, width/6, 2*height/20);
+  stroke(0);
+}
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   void fond(){
       fill(150,10,10);
