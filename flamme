@@ -1,0 +1,61 @@
+float[][] fire = new float[100000][15];
+float currentflame = 0, nextflame;
+
+void setup() {
+  size(400, 400);
+  rectMode(CENTER);
+  smooth();
+  noStroke();
+  frameRate(60);
+}
+
+void draw() {
+  background(0); // Fond noir pour bien voir la flamme
+  create_fire(width / 2, height - 50); // Crée la flamme à une position donnée
+  update_fire();
+  draw_fire();
+}
+
+void create_fire(float x, float y) {
+  nextflame = currentflame + 10;
+  for (int flame = int(currentflame); flame < nextflame; flame++) {
+    fire[flame][0] = 1;
+    fire[flame][1] = x;
+    fire[flame][2] = y;
+    fire[flame][3] = random(0, PI * 2);
+    fire[flame][4] = random(5, 30);
+    fire[flame][5] = random(.5, 1);
+    fire[flame][6] = random(5, 89) / fire[flame][5];
+    fire[flame][7] = 0;
+    fire[flame][8] = random(0, TWO_PI);
+    fire[flame][9] = random(200, 255);
+    fire[flame][10] = random(50, 150);
+  }
+  currentflame = nextflame;
+}
+
+void update_fire() {
+  for (int flame = 0; flame < 100000; flame++) {
+    if (fire[flame][0] == 1) {
+      fire[flame][1] += fire[flame][5] * cos(fire[flame][3]);
+      fire[flame][2] += fire[flame][5] * sin(fire[flame][3]);
+    }
+    fire[flame][7] += 1;
+    if (fire[flame][7] > fire[flame][6]) {
+      fire[flame][0] = 0;
+    }
+  }
+}
+
+void draw_fire() {
+  for (int flame = 0; flame < currentflame; flame++) {
+    if (fire[flame][0] == 1) {
+      fill(fire[flame][9], fire[flame][10], 0, 40);
+      pushMatrix();
+      translate(fire[flame][1], fire[flame][2]);
+      rotate(fire[flame][8]);
+      rect(0, 0, fire[flame][4], fire[flame][4]);
+      popMatrix();
+    }
+  }
+}
