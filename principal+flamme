@@ -1,0 +1,233 @@
+PFont police;
+int tempsDepart;
+float opacite = 255;
+float[][] fire = new float[10000][15]; 
+float currentflame = 0, nextflame;
+
+
+
+
+
+void setup() {
+  fullScreen();
+  background(0);
+  tempsDepart = millis();
+  frameRate(60);
+}
+
+
+
+
+void draw() {
+  if (millis() - tempsDepart < 3000) {
+    lancement_jeu();
+    noStroke();
+    Eclair(width / 2, 0);
+    Feu();
+  } else {
+    transition();
+  }
+}
+
+
+
+
+//===============================================================================================
+
+void transition() {
+  guitare(); 
+  fill(0, opacite); 
+  rect(0, 0, width, height);
+  
+  
+  opacite -= 10; 
+  if (opacite < 0) {
+    opacite = 0; 
+  }
+}
+
+
+
+
+
+void lancement_jeu() {
+   background(0);
+   police = createFont("Impact", 100);
+   textFont(police);
+   fill(255, 255, 255);
+   textSize(100);
+   textAlign(CENTER,CENTER);
+   text("Bienvenue sur le jeu GUITAR HERO!", width / 2, height / 2);
+}
+
+
+
+
+
+
+void Menu() {
+}
+
+
+
+
+
+void Eclair(float xDepart, float yDepart) {
+
+  stroke(255, 255, 0); // Couleur jaune
+  strokeWeight(4); // Épaisseur des éclairs
+
+  float xActuel = xDepart;
+  float yActuel = yDepart;
+
+  for (int i = 0; i < 8; i++) { // Nombre de segments
+    float xSuivant = xActuel + random(-40, 40); // Déviation aléatoire
+    float ySuivant = yActuel + random(20, 50);  // Descente progressive
+
+    line(xActuel, yActuel, xSuivant, ySuivant);
+    xActuel = xSuivant;
+    yActuel = ySuivant;
+  }
+}
+
+
+
+
+void create_fire(float x, float y) {
+  nextflame = currentflame + 10;
+  for (int flame = int(currentflame); flame < nextflame; flame++) {
+    fire[flame][0] = 1;  
+    fire[flame][1] = x + random(-15, 15); // Départ légèrement aléatoire
+    fire[flame][2] = y;  
+    fire[flame][3] = -HALF_PI + random(-0.3, 0.3); // Monte presque droit
+    fire[flame][4] = random(5, 30); // Taille variable
+    fire[flame][5] = random(1, 5); // Vitesse de montée
+    fire[flame][6] = random(2, 50); // Durée de vie
+    fire[flame][7] = 0;  
+    fire[flame][8] = random(0, TWO_PI); // Rotation aléatoire
+    fire[flame][9] = random(200, 255); // Couleur rouge/orange
+    fire[flame][10] = random(50, 150); // Couleur jaune
+  }
+  currentflame = nextflame;
+}
+
+
+
+
+void update_fire() {
+  for (int flame = 0; flame < 10000; flame++) {
+    if (fire[flame][0] == 1) {
+      fire[flame][1] += fire[flame][5] * cos(fire[flame][3]) * 0.5; // Mouvement latéral réduit
+      fire[flame][2] += fire[flame][5] * sin(fire[flame][3]); // Monte verticalement
+    }
+    fire[flame][7] += 1;
+    if (fire[flame][7] > fire[flame][6]) {
+      fire[flame][0] = 0; // Éteindre les particules mortes
+    }
+  }
+}
+
+
+
+
+void draw_fire() {
+  for (int flame = 0; flame < currentflame; flame++) {
+    if (fire[flame][0] == 1) {
+      fill(fire[flame][9], fire[flame][10], 0, 80);
+      pushMatrix();
+      translate(fire[flame][1], fire[flame][2]);
+      rotate(fire[flame][8]);
+      rect(0, 0, fire[flame][4], fire[flame][4]); // Particules carrées
+      popMatrix();
+    }
+  }
+}
+
+
+
+
+
+
+
+
+
+void Feu() {
+  create_fire(width /10, height - 50); 
+  create_fire(9*width /10, height - 50); 
+  update_fire();
+  draw_fire();
+}
+
+//"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+void guitare() {
+  background(100, 10, 10);
+  fond();
+  titre();
+  emplacement_note();
+  rectangle_bord_de_guitare();
+  enceinte(width/9, 50, 200, 400);
+  enceinte(7*width/9, 50, 200, 400);
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+void fond() {
+  fill(150, 10, 10);
+  quad(0, 2*height/7, width, 2*height/7, width, 0, 0, 0);
+}
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+void emplacement_note() {
+  fill(255);
+  line(6*width/20, 2*height/7, 14*width/20, 2*height/7);
+  stroke(0);
+  for (int i=0; i<9; i++) {
+    strokeWeight(4);
+    line((i+6)*width/20, 2*height/7, i*width/8, height);
+    stroke(50, 20, 20);
+  }
+}
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void titre() {
+  police = createFont("Impact", 100);
+  textFont(police);
+  fill(255, 255, 255);
+  textSize(100);
+  textAlign(CENTER, TOP);
+  text("À vous de JOUER!", width / 2, height / 9);
+}
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void rectangle_bord_de_guitare() {
+  //fill(100,10,100);
+  fill(30, 0, 20);
+  quad(6*width/20, 2*height/7, 6*width/20, 2*height/7-20, 0, height-200, 0, height);
+
+  quad(14*width/20, 2*height/7, 14*width/20, 2*height/7-20, width, height-200, width, height);
+  fill(0, 0, 20);
+  quad(width, 2*height/7, 14*width/20, 2*height/7-20, width, height-200, width, height);
+  quad(0, 2*height/7, 6*width/20, 2*height/7-20, 0, height-200, 0, height);
+}
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+void enceinte(float x, float y, float largeur, float hauteur) {
+  fill(181, 140, 90);
+  stroke(120, 90, 50);
+  rect(x, y, largeur, hauteur, 10);
+
+  fill(30);
+  ellipse(x + largeur / 2, y + hauteur * 0.65, largeur * 0.7, largeur * 0.7);
+  fill(50);
+  ellipse(x + largeur / 2, y + hauteur * 0.65, largeur * 0.5, largeur * 0.5);
+  fill(80);
+  ellipse(x + largeur / 2, y + hauteur * 0.65, largeur * 0.3, largeur * 0.3);
+
+  fill(30);
+  ellipse(x + largeur / 2, y + hauteur * 0.25, largeur * 0.35, largeur * 0.35);
+  fill(50);
+  ellipse(x + largeur / 2, y + hauteur * 0.25, largeur * 0.25, largeur * 0.25);
+  fill(80);
+  ellipse(x + largeur / 2, y + hauteur * 0.25, largeur * 0.15, largeur * 0.15);
+
+  fill(0);
+  ellipse(x + largeur * 0.3, y + hauteur * 0.85, largeur * 0.05, largeur * 0.05);
+  ellipse(x + largeur * 0.7, y + hauteur * 0.85, largeur * 0.05, largeur * 0.05);
+}
