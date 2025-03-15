@@ -1,0 +1,44 @@
+
+void create_fire(float x, float y) {
+  nextflame = currentflame + 10;
+  for (int flame = int(currentflame); flame < nextflame; flame++) {
+    fire[flame][0] = 1;  
+    fire[flame][1] = x + random(-15, 15); // Départ légèrement aléatoire
+    fire[flame][2] = y;  
+    fire[flame][3] = -HALF_PI + random(-0.3, 0.3); // Monte presque droit
+    fire[flame][4] = random(5, 30); // Taille variable
+    fire[flame][5] = random(1, 5); // Vitesse de montée
+    fire[flame][6] = random(2, 50); // Durée de vie
+    fire[flame][7] = 0;  
+    fire[flame][8] = random(0, TWO_PI); // Rotation aléatoire
+    fire[flame][9] = random(200, 255); // Couleur rouge/orange
+    fire[flame][10] = random(50, 150); // Couleur jaune
+  }
+  currentflame = nextflame;
+}
+
+void update_fire() {
+  for (int flame = 0; flame < 10000; flame++) {
+    if (fire[flame][0] == 1) {
+      fire[flame][1] += fire[flame][5] * cos(fire[flame][3]) * 0.5; // Mouvement latéral réduit
+      fire[flame][2] += fire[flame][5] * sin(fire[flame][3]); // Monte verticalement
+    }
+    fire[flame][7] += 1;
+    if (fire[flame][7] > fire[flame][6]) {
+      fire[flame][0] = 0; // Éteindre les particules mortes
+    }
+  }
+}
+
+void draw_fire() {
+  for (int flame = 0; flame < currentflame; flame++) {
+    if (fire[flame][0] == 1) {
+      fill(fire[flame][9], fire[flame][10], 0, 80);
+      pushMatrix();
+      translate(fire[flame][1], fire[flame][2]);
+      rotate(fire[flame][8]);
+      rect(0, 0, fire[flame][4], fire[flame][4]); // Particules carrées
+      popMatrix();
+    }
+  }
+}
