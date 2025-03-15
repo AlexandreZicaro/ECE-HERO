@@ -1,10 +1,10 @@
 int startTime;
 boolean showLightning = false;
-
+PFont police;
 
 void setup() {
   fullScreen(); 
-  background(230,200,220); 
+  background(100,10,10); 
   startTime = millis();
 }
 
@@ -28,21 +28,49 @@ void Menu_Eclair() {
 
 void guitare(){
   
-  textSize(32);
-  text("JOUER!", width / 2-50, height / 9);
-  
-  line(6*width/20,2*height/7,14*width/20,2*height/7);
-    stroke(0);
-  for(int i=0; i<9 ; i++){
-  strokeWeight(5);
-  line((i+6)*width/20,2*height/7,i*width/8,height);
-    stroke(0);
-  }
+  fond();
+  titre();
+  emplacement_note();
   rectangle_bord_de_guitare();
 
 }
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  void fond(){
+      fill(150,10,10);
+    quad(0,2*height/7,width,2*height/7,width,0,0,0);
+      
+  
+  }
+  void emplacement_note(){
+    fill(255);
+  line(6*width/20,2*height/7,14*width/20,2*height/7);
+    stroke(0);
+  for(int i=0; i<9 ; i++){
+  strokeWeight(4);
+  line((i+6)*width/20,2*height/7,i*width/8,height);
+    stroke(50,20,20);
+  }
+  
+  }
+  
+void titre() {
+  police = createFont("Impact", 100);
+  textFont(police);
+    fill(255, 255, 255);
+    textSize(100);
+    textAlign(CENTER,TOP); 
+    text("À vous de JOUER!", width / 2, height / 9); 
+}
+
+
   void rectangle_bord_de_guitare(){
+    //fill(100,10,100);
+    fill(30,0,20);
     quad(6*width/20,2*height/7,6*width/20,2*height/7-20,0,height-200,0,height);
-    fill(100,10,100);
+      
     quad(14*width/20,2*height/7,14*width/20,2*height/7-20,width,height-200,width,height);
+    fill(0,0,20);
+    quad(width,2*height/7,14*width/20,2*height/7-20,width,height-200,width,height);
+    quad(0,2*height/7,6*width/20,2*height/7-20,0,height-200,0,height);
   }
