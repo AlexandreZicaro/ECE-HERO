@@ -1,0 +1,694 @@
+PFont police;
+int tempsDepart;
+float opacite = 255;
+float[][] fire = new float[10000][15]; 
+float currentflame = 0, nextflame;
+boolean transitionActive = true; // La transition démarre au lancement
+
+
+
+
+void setup() {
+  fullScreen();
+  background(0);
+  tempsDepart = millis();
+  frameRate(60);
+  x1= 31*width/100;
+  y1= 3*height/9;
+
+  
+  x2= 36*width/100;
+  y2= 3*height/9;
+  
+  x3= 42*width/100;
+  y3= 3*height/9;
+  
+  x4=47*width/100;
+  y4= 3*height/9;
+  
+  x5= 53*width/100; 
+  y5= 3*height/9;
+  
+  x6=58*width/100;
+  y6= 3*height/9;
+  
+  x7= 64*width/100;
+  y7= 3*height/9;
+  
+  x8= 69*width/100;
+  y8= 3*height/9;
+}
+
+
+
+void draw() {
+  background(0);
+
+  if (transitionActive) {
+    lancement_jeu(); // Afficher lancement_jeu() pendant 3 secondes
+    if (millis() - tempsDepart >= 3000) { // Vérifier si 3 secondes sont passées
+      transitionActive = false;
+      menuActif = true; // Activer le menu après la transition
+    }
+  } 
+  else if (menuActif) {
+    menu(); // Afficher le menu tant qu'il est actif
+  } 
+  else if (start) {
+    guitare(); // Lancer la fonction guitare() après le menu
+  }
+}
+
+
+//=============================================================================================================================================================================================================================================================================================
+//=============================================================================================================================================================================================================================================================================================
+//============================================================================================================================================================================================================================================================================================================================================================================================
+
+void transition() {
+  guitare(); 
+  fill(0, opacite); 
+  rect(0, 0, width, height);
+  
+  
+  opacite -= 10; 
+  if (opacite < 0) {
+    opacite = 0; 
+  }
+}
+
+
+
+
+
+void lancement_jeu() {
+   background(0);
+   police = createFont("Impact", 100);
+   textFont(police);
+   fill(255, 255, 255);
+   textSize(100);
+   textAlign(CENTER,CENTER);
+   text("Bienvenue sur le jeu GUITAR HERO!", width / 2, height / 2);
+   
+   Eclair(width / 2, 0);
+   Feu();
+}
+
+
+
+
+
+void Eclair(float xDepart, float yDepart) {
+
+  stroke(255, 255, 0); // Couleur jaune
+  strokeWeight(4); // Épaisseur des éclairs
+
+  float xActuel = xDepart;
+  float yActuel = yDepart;
+
+  for (int i = 0; i < 8; i++) { // Nombre de segments
+    float xSuivant = xActuel + random(-40, 40); // Déviation aléatoire
+    float ySuivant = yActuel + random(20, 50);  // Descente progressive
+
+    line(xActuel, yActuel, xSuivant, ySuivant);
+    xActuel = xSuivant;
+    yActuel = ySuivant;
+  }
+}
+
+
+
+
+void create_fire(float x, float y) {
+  nextflame = currentflame + 10;
+  for (int flame = int(currentflame); flame < nextflame; flame++) {
+    fire[flame][0] = 1;  
+    fire[flame][1] = x + random(-15, 15); // Départ légèrement aléatoire
+    fire[flame][2] = y;  
+    fire[flame][3] = -HALF_PI + random(-0.3, 0.3); // Monte presque droit
+    fire[flame][4] = random(5, 30); // Taille variable
+    fire[flame][5] = random(1, 5); // Vitesse de montée
+    fire[flame][6] = random(2, 50); // Durée de vie
+    fire[flame][7] = 0;  
+    fire[flame][8] = random(0, TWO_PI); // Rotation aléatoire
+    fire[flame][9] = random(200, 255); // Couleur rouge/orange
+    fire[flame][10] = random(50, 150); // Couleur jaune
+  }
+  currentflame = nextflame;
+}
+
+
+
+
+void update_fire() {
+  for (int flame = 0; flame < 10000; flame++) {
+    if (fire[flame][0] == 1) {
+      fire[flame][1] += fire[flame][5] * cos(fire[flame][3]) * 0.5; // Mouvement latéral réduit
+      fire[flame][2] += fire[flame][5] * sin(fire[flame][3]); // Monte verticalement
+    }
+    fire[flame][7] += 1;
+    if (fire[flame][7] > fire[flame][6]) {
+      fire[flame][0] = 0; // Éteindre les particules mortes
+    }
+  }
+}
+
+
+
+
+void draw_fire() {
+  for (int flame = 0; flame < currentflame; flame++) {
+    if (fire[flame][0] == 1) {
+      fill(fire[flame][9], fire[flame][10], 0, 80);
+      pushMatrix();
+      translate(fire[flame][1], fire[flame][2]);
+      rotate(fire[flame][8]);
+      rect(0, 0, fire[flame][4], fire[flame][4]); // Particules carrées
+      popMatrix();
+    }
+  }
+}
+
+
+
+void Feu() {
+  create_fire(width /10, height - 50); 
+  create_fire(9*width /10, height - 50); 
+  update_fire();
+  draw_fire();
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////MENU///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+boolean start = false;
+boolean perdu = false;
+boolean menuActif = true; // Le menu est actif au démarrage
+
+
+
+// Fonction affichant le menu principal
+void menu() {
+  rectMode(CENTER); // Centrer les rectangles par leur milieu
+  fill(255);
+  textSize(100);
+  textAlign(CENTER, CENTER); // Centrer le texte aussi
+  text("Menu Principal", width / 2, height / 4);
+
+  // Bouton "Jouer"
+  if (overRect(width / 2 - 100, height / 2, 200, 50)) {
+    fill(100);
+  } else {
+    fill(255, 0, 0);
+  }
+  rect(width / 2, height / 2, 300, 60);
+  
+  fill(255);
+  textSize(60);
+  text("Jouer", width / 2, height / 2);
+
+  // Bouton "Quitter"
+  if (overRect(width / 2 - 100, height / 2 + 80, 200, 50)) {
+    fill(100);
+  } else {
+    fill(255, 0, 0);
+  }
+  rect(width / 2, height / 2 + 80, 300, 60);
+  
+  fill(255);
+  textSize(50);
+  text("Quitter", width / 2, height / 2 + 80);
+  rectMode(0);
+  
+  
+  /*if () {                                                                                                                definir condition pour perdre le jeu
+    perdu = true;
+    menuActif = true; // Retour au menu après la défaite
+    start = false;
+  }*/
+  souris();
+
+}
+
+// Détection de clics sur les boutons du menu
+void mouseReleased() {
+  if (menuActif) {
+    if (overRect(width / 2 - 100, height / 2, 200, 50)) {
+      start = true;
+      menuActif = false; // Masquer le menu et lancer le jeu
+    } else if (overRect(width / 2 - 100, height / 2 + 80, 200, 50)) {
+      exit(); // Quitter le programme
+    }
+  }
+}
+
+// Vérifie si la souris est sur un rectangle
+boolean overRect(int x, int y, int w, int h) {
+  return (mouseX >= x && mouseX <= x + w && mouseY >= y && mouseY <= y + h);
+}
+
+void keyPressed() {
+  if (key == 'm' || key == 'M') {
+    menuActif = true; // Activer le menu
+    start = false; // Arrêter le jeu
+  }
+}
+ 
+ 
+ 
+int num = 60;
+float mx[] = new float[num];
+float my[] = new float[num];
+//souris 
+void souris(){
+  fill(255,20,10);
+  noStroke();
+  int which = frameCount % num;
+  mx[which] = mouseX;
+  my[which] = mouseY;
+  
+  for (int i = 0; i < num; i++) {
+    // which+1 is the smallest (the oldest in the array)
+    int index = (which+1 + i) % num;
+    ellipse(mx[index], my[index], 0.5*i, 0.5*i);
+  }
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////Jeu///////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+//"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+void guitare() {
+  background(100, 10, 10);
+  fond();
+  titre();
+  emplacement_note();
+  rectangle_bord_de_guitare();
+  enceinte(width/9, 50, 200, 400);
+  enceinte(7*width/9, 50, 200, 400);
+  animation_rond();
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+void fond() {
+  fill(150, 10, 10);
+  quad(0, 2*height/7, width, 2*height/7, width, 0, 0, 0);
+}
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+void emplacement_note() {
+  fill(255);
+  line(6*width/20, 2*height/7, 14*width/20, 2*height/7);
+  stroke(0);
+  for (int i=0; i<9; i++) {
+    strokeWeight(4);
+    line((i+6)*width/20, 2*height/7, i*width/8, height);
+    stroke(50, 20, 20);
+  }
+}
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void titre() {
+  police = createFont("Impact", 100);
+  textFont(police);
+  fill(255, 255, 255);
+  textSize(100);
+  textAlign(CENTER, TOP);
+  text("À vous de JOUER!", width / 2, height / 9);
+}
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void rectangle_bord_de_guitare() {
+  //fill(100,10,100);
+  fill(30, 0, 20);
+  quad(6*width/20, 2*height/7, 6*width/20, 2*height/7-20, 0, height-200, 0, height);
+
+  quad(14*width/20, 2*height/7, 14*width/20, 2*height/7-20, width, height-200, width, height);
+  fill(0, 0, 20);
+  quad(width, 2*height/7, 14*width/20, 2*height/7-20, width, height-200, width, height);
+  quad(0, 2*height/7, 6*width/20, 2*height/7-20, 0, height-200, 0, height);
+}
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+void enceinte(float xe, float ye, float largeur, float hauteur) {
+  fill(181, 140, 90);
+  stroke(120, 90, 50);
+  rect(xe, ye, largeur, hauteur, 10);
+
+  fill(30);
+  ellipse(xe + largeur / 2, ye + hauteur * 0.65, largeur * 0.7, largeur * 0.7);
+  fill(50);
+  ellipse(xe + largeur / 2, ye + hauteur * 0.65, largeur * 0.5, largeur * 0.5);
+  fill(80);
+  ellipse(xe + largeur / 2, ye + hauteur * 0.65, largeur * 0.3, largeur * 0.3);
+
+  fill(30);
+  ellipse(xe + largeur / 2, ye + hauteur * 0.25, largeur * 0.35, largeur * 0.35);
+  fill(50);
+  ellipse(xe+ largeur / 2, ye + hauteur * 0.25, largeur * 0.25, largeur * 0.25);
+  fill(80);
+  ellipse(xe + largeur / 2, ye + hauteur * 0.25, largeur * 0.15, largeur * 0.15);
+
+  fill(0);
+  ellipse(xe + largeur * 0.3, ye + hauteur * 0.85, largeur * 0.05, largeur * 0.05);
+  ellipse(xe + largeur * 0.7, ye + hauteur * 0.85, largeur * 0.05, largeur * 0.05);
+}
+
+
+//===============================================================================================================================  Notes  ==================================================================================================================
+
+/*
+void setup(){
+  fullScreen();
+  frameRate(60);
+  x1= 31*width/100;
+  y1= 3*height/9;
+  
+  x2= 36*width/100;
+  y2= 3*height/9;
+  
+  x3= 42*width/100;
+  y3= 3*height/9;
+  
+  x4=47*width/100;
+  y4= 3*height/9;
+  
+  x5= 53*width/100; 
+  y5= 3*height/9;
+  
+  x6=58*width/100;
+  y6= 3*height/9;
+  
+  x7= 64*width/100;
+  y7= 3*height/9;
+  
+  x8= 69*width/100;
+  y8= 3*height/9;
+
+}
+
+void draw(){
+ guitare(); 
+}
+*/
+
+void animation_rond() {
+  L1();
+  L2();
+  L3();
+  L4();
+  L5();
+  L6();
+  L7();
+  L8();
+
+}
+float x1, y1, x2, y2, x3, y3 , x4, y4, x5, y5, x6, y6, x7, y7, x8, y8;
+
+/////////////////////////////////// n1
+
+void L1() {
+  float vx1 =-2;
+  float vy1 =3;
+  float r1=50;
+  
+  fill(100,200,200);
+  stroke(255);
+  circle (x1,y1,r1);
+  
+  do{
+    x1 = x1+ vx1;
+    y1 = y1+ vy1;
+  
+  if(y1>=3*height/5){
+      r1 = r1 + 11;
+      circle (x1,y1,r1);
+
+  }
+    if (y1 <= 4*height/5){
+      r1 = r1 +  11;
+      circle (x1,y1,r1);
+    }
+  
+    if (y1>=height){
+      x1= 31*width/100;
+      y1= 3*height/9;
+      r1=50;
+    }
+   
+ }while(y1>=height);
+  noStroke();
+}
+
+
+/////////////////////// n2
+
+
+void L2() {
+  float vx2 =-1.380;
+  float vy2 =3;
+  float r1=50;
+  
+  fill(100,200,200);
+  stroke(255);
+  circle (x2,y2,r1);
+  
+  do{
+    x2 = x2+ vx2;
+    y2 = y2+ vy2;
+  
+  if(y2>=3*height/5){
+      r1 = r1 + 11;
+      circle (x2,y2,r1);
+
+  }
+    if (y2 <= 4*height/5){
+      r1 = r1 +  11;
+      circle (x2,y2,r1);
+    }
+  
+    if (y2>=height){
+      x2= 36*width/100;
+      y2= 3*height/9;
+      r1=50;
+    }
+ }while(y2>=height);
+ 
+  noStroke();
+}
+
+////////////////////////////////// n3
+
+void L3() {
+  float vx3 =-0.86;
+  float vy3 =3;
+  float r1=50;
+  
+  fill(100,200,200);
+  stroke(255);
+  circle (x3,y3,r1);
+  
+  do{
+    x3 = x3+ vx3;
+    y3 = y3+ vy3;
+  
+  if(y3>=3*height/5){
+      r1 = r1 + 11;
+      circle (x3,y3,r1);
+
+  }
+    if (y3 <= 4*height/5){
+      r1 = r1 +  11;
+      circle (x3,y3,r1);
+    }
+  
+    if (y3>=height){
+      x3= 42*width/100;
+      y3= 3*height/9;
+      r1=50;
+    }
+   
+ }while(y3>=height);
+  noStroke();
+}
+
+///////////////////////////////////// n4
+
+void L4() {
+  float vx4 =-0.25;
+  float vy4 =3;
+  float r1=50;
+  
+  fill(100,200,200);
+  stroke(255);
+  circle (x4,y4,r1);
+  
+  do{
+    x4 = x4+ vx4;
+    y4 = y4+ vy4;
+  
+  if(y4>=3*height/5){
+      r1 = r1 + 11;
+      circle (x4,y4,r1);
+
+  }
+    if (y4 <= 4*height/5){
+      r1 = r1 +  11;
+      circle (x4,y4,r1);
+    }
+  
+    if (y4>=height){
+      x4= 47*width/100;
+      y4= 3*height/9;
+      r1=50;
+    }
+   
+ }while(y4>=height);
+  noStroke();
+}
+
+///////////////////////////////////////// n5
+
+void L5() {
+  float vx5 =0.25;
+  float vy5 =3;
+  float r1=50;
+  
+  fill(100,200,200);
+  stroke(255);
+  circle (x5,y5,r1);
+  
+  do{
+    x5 = x5+ vx5;
+    y5 = y5+ vy5;
+  
+  if(y5>=3*height/5){
+      r1 = r1 + 11;
+      circle (x5,y5,r1);
+
+  }
+    if (y5 <= 4*height/5){
+      r1 = r1 +  11;
+      circle (x5,y5,r1);
+    }
+  
+    if (y5>=height){
+      x5=53*width/100;
+      y5= 3*height/9;
+      r1=50;
+    }
+   
+ }while(y5>=height);
+  noStroke();
+}
+
+
+///////////////////////////////////////// n6
+
+void L6() {
+  float vx6 =0.86;
+  float vy6 =3;
+  float r1=50;
+  
+  fill(100,200,200);
+  stroke(255);
+  circle (x6,y6,r1);
+  
+  do{
+    x6 = x6+ vx6;
+    y6 = y6+ vy6;
+  
+  if(y6>=3*height/5){
+      r1 = r1 + 11;
+      circle (x6,y6,r1);
+
+  }
+    if (y6 <= 4*height/5){
+      r1 = r1 +  11;
+      circle (x6,y6,r1);
+    }
+  
+    if (y6>=height){
+      x6=58*width/100;
+      y6= 3*height/9;
+      r1=50;
+    }
+   
+ }while(y6>=height);
+  noStroke();
+}
+
+
+
+///////////////////////////////////////// n7
+
+void L7() {
+  float vx7 =1.380;
+  float vy7 =3;
+  float r1=50;
+  
+  fill(100,200,200);
+  stroke(255);
+  circle (x7,y7,r1);
+  
+  do{
+    x7 = x7+ vx7;
+    y7 = y7+ vy7;
+  
+  if(y7>=3*height/5){
+      r1 = r1 + 11;
+      circle (x7,y7,r1);
+
+  }
+    if (y7 <= 4*height/5){
+      r1 = r1 +  11;
+      circle (x7,y7,r1);
+    }
+  
+    if (y7>=height){
+      x7=64*width/100;
+      y7= 3*height/9;
+      r1=50;
+    }
+   
+ }while(y7>=height);
+  noStroke();
+}
+
+
+///////////////////////////////////////// n8
+
+void L8() {
+  float vx8 =2;
+  float vy8 =3;
+  float r1=50;
+  
+  fill(100,200,200);
+  stroke(255);
+  circle (x8,y7,r1);
+  
+  do{
+    x8 = x8+ vx8;
+    y8 = y8+ vy8;
+  
+  if(y7>=3*height/5){
+      r1 = r1 + 11;
+      circle (x8,y7,r1);
+
+  }
+    if (y7 <= 4*height/5){
+      r1 = r1 +  11;
+      circle (x8,y7,r1);
+    }
+  
+    if (y8>=height){
+      x8=69*width/100;
+      y8= 3*height/9;
+      r1=50;
+    }
+   
+ }while(y8>=height);
+  noStroke();
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
