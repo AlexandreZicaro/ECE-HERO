@@ -1,0 +1,27 @@
+#include "Arduino.h"
+const int inputPin = 2;  // Entrée du signal (ex: NE555)
+unsigned long lastRead = 0; // Dernière mesure
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(inputPin, INPUT);
+}
+
+void loop() {
+  if (millis() - lastRead >= 1000) {  // Toutes les 1000 ms = 1 seconde
+    lastRead = millis();
+
+    unsigned long highTime = pulseIn(inputPin, HIGH, 100000); // Timeout 100 ms
+    unsigned long lowTime = pulseIn(inputPin, LOW, 100000);
+
+    if (highTime > 0 && lowTime > 0) {
+      float period = highTime + lowTime;         // µs
+      float frequency = 1000000.0 / period;      // Hz
+      Serial.print("Fréquence : ");
+      Serial.print(frequency);
+      Serial.println(" Hz");
+    } else {
+      Serial.println("Signal absent ou trop lent");
+    }
+  }
+}
