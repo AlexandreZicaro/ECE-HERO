@@ -1,0 +1,44 @@
+#include <Arduino.h>
+
+const int signalPin = 2;  // Pin de lecture du signal NE555
+volatile unsigned long lastTime = 0;
+volatile unsigned long period = 0;
+
+void ISR_signal() {
+  unsigned long currentTime = micros();
+  if (currentTime - lastTime > 1000) { // Ignorer les parasites < 1000µs
+    period = currentTime - lastTime;
+    lastTime = currentTime;
+  }
+}
+void flash(){
+  
+}
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(signalPin, INPUT);
+  attachInterrupt(digitalPinToInterrupt(signalPin), ISR_signal, RISING);
+  MsTimer2::set(1000, flash);
+  MsTimer2::start;
+}
+
+void loop() {
+  noInterrupts();  // Pause des interruptions pour lire une période stable
+  unsigned long measuredPeriod = period;
+  interrupts();    // On les réactive juste après
+
+  if (measuredPeriod > 0) {
+    float frequence = 1000000.0 / measuredPeriod;
+
+    Serial.print("Période : ");
+    Serial.print(measuredPeriod);
+    Serial.print(" µs | Fréquence : ");
+    Serial.print(frequence);
+    Serial.println(" Hz");
+
+    period = 0; // Réinitialiser pour éviter affichage en boucle
+  }
+
+  delay(200); // Petite pause pour éviter de spammer le moniteur série
+}
