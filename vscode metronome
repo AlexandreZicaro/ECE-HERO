@@ -1,0 +1,23 @@
+#include <Arduino.h>
+#include <MsTimer2.h>
+
+const int buzzerPin = 8;         // Pin du buzzer
+volatile bool tick = false;      // Flag d'interruption
+
+void metronomeTick() {
+  tick = true;                   // Déclenché toutes les 500ms (120 BPM)
+}
+
+void setup() {
+  pinMode(buzzerPin, OUTPUT);
+
+  MsTimer2::set(500, metronomeTick);  // 500 ms = 120 BPM
+  MsTimer2::start();
+}
+
+void loop() {
+  if (tick) {
+    tone(buzzerPin, 1000, 50);   // Clic court : 1000 Hz pendant 50 ms
+    tick = false;
+  }
+}
